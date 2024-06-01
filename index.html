@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Payment Fraud Detection ML Model</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Online Payment Fraud Detection</h1>
+        <form id="fraudDetectionForm">
+            <div class="input-group">
+                <label for="type">Transaction Type</label>
+                <select id="type" name="type" required>
+                    <option value="">Select Type</option>
+                    <option value="1">CASH-IN</option>
+                    <option value="2">CASH-OUT</option>
+                    <option value="3">DEBIT</option>
+                    <option value="4">PAYMENT</option>
+                    <option value="5">TRANSFER</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="amount">Amount</label>
+                <input type="number" id="amount" name="amount" placeholder="Enter Amount" required>
+            </div>
+
+            <div class="input-group">
+                <label for="old_balance">Old Balance</label>
+                <input type="number" id="old_balance" name="old_balance" placeholder="Initial Balance" required>
+            </div>
+
+            <div class="input-group">
+                <label for="new_balance">New Balance</label>
+                <input type="number" id="new_balance" name="new_balance" placeholder="New Balance" required>
+            </div>
+
+            <button type="submit">Predict</button>
+        </form>
+        <div id="prediction">
+            <h2>Prediction:</h2>
+            <p id="predictionResult">Result will be shown here</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('fraudDetectionForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Gather form data
+            const formData = new FormData(event.target);
+            const data = {
+                type: formData.get('type'),
+                amount: formData.get('amount'),
+                old_balance: formData.get('old_balance'),
+                new_balance: formData.get('new_balance')
+            };
+
+            // Send form data to Flask backend
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                // Interpret prediction result
+                const prediction = result.prediction === '1' ? 'Fraud' : 'No Fraud';
+                
+                // Display prediction result
+                document.getElementById('predictionResult').innerText = `Prediction: ${prediction}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
